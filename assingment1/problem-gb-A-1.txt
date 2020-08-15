@@ -1,0 +1,141 @@
+----------------------------------------------
+A-1 Declarations, Expressions, and Assignments
+----------------------------------------------
+
+        Compile the following program (file  A-1.c) and observe the GIMPLE dumps
+        and answer  the questions below. If  you manage to finish  all questions
+        quickly try to attempt the optional problem.
+
+        Source file : A-1.c
+        Compilation : gcc-4.7.2 -c -fdump-tree-gimple A-1.c
+        View result : vi -O A-1.c A-1.c.*.gimple
+        Clear dumps : rm -f A-1.c.* A-1.o
+
+Program
+-------
+
+	int Z;
+
+	void main()
+	{
+		int a, b, c;
+		int p = 6;
+		int q;
+		double r;
+
+		a = 10;
+		b = 20;
+		c = a * b + 25;
+		p = 6;
+		q = Z;
+		r = 34.5;
+		Z = r;
+		Z = Z + 1;
+	}
+
+
+Questions
+---------
+
+        1   How  do the  declarations  look in  the  GIMPLE? Specifically,  what
+            happens to multiple  variables declared and initialized  on the same
+            line? What happens to global declaration [int Z]?
+         ans1:
+              1.In the gimple file all the declarations are done only one per line
+              and Specifically multiple variables are brought to one seperate declaration
+              per line and initialized variables are declared first and then afterwards 
+              assigned values. The global declaration gets disappeared but it has unique 
+              naming and is preserved.   
+
+        2   How are complex  expressions such as [c  = a * b +  25] broken down?
+            Can you  determine a  rule as  to when  temporary variables  will be
+            introduced?
+        Ans 2:complex expressions are broken down in such a way that it performs
+              one operation per line to make all operations seperately. Temporary variables are introduced whenever there 
+              are operations used as  intermediate in a statement
+              eg :while assigning value to a variable by doing some operations on another 
+                variables, then temporary variables are introduced. 
+
+        3   How are  floats/doubles represented in  GIMPLE? What happens  when a
+            float/double is assigned to an integer in [Z = r]?
+            floats and doubles are represented using scientific notation. eg: 21.5 is written 
+            as 2.15e+1. When float /doubles is assigned to an integer then type cast is introduced
+            to assign value ie change doubles to int and then assign.
+
+        4   How  are reads/writes  to the  global variable  Z performed?  Why is
+            there a temporary introduced  for the statement [Z = Z  + 1] but not
+            for the statements [q = Z] or [Z = p]?
+          Ans: reads/writes to global variable z are performed through loads to/stores from locals.
+               temporary variable is introduced in case of z=z+1 because the result of computation
+               z+1 cannot be directly allocated to a memory location. 
+
+            
+Optional Problem
+----------------
+
+        Try to understand the underlying GIMPLE representation by looking at the
+        RAW dumps:
+
+        Compilation : gcc-4.7.2 -c -fdump-tree-gimple-raw A-1.c
+        View result : vi -O A-1.c A-1.c.*.gimple
+        Ans:
+           in underlying gimple representation every expression represented  is stored using tree
+           node ,each expression has a type (ex: 'plus_ expr' for addition ) and gimple_assign is
+           used for declaration and functioning
+
+           Gimple raw dumps:
+
+            main ()
+            gimple_bind <
+            int a;
+            int b;
+            int c;
+            int p;
+            int q;
+            double r;
+
+            gimple_assign <integer_cst, p, 6, NULL, NULL>
+            gimple_assign <integer_cst, a, 10, NULL, NULL>
+            gimple_assign <integer_cst, b, 20, NULL, NULL>
+            gimple_assign <mult_expr, _1, a, b, NULL>
+            gimple_assign <plus_expr, c, _1, 25, NULL>
+            gimple_assign <integer_cst, p, 6, NULL, NULL>
+            gimple_assign <var_decl, q, Z, NULL, NULL>
+            gimple_assign <real_cst, r, 3.45e+1, NULL, NULL>
+            gimple_assign <fix_trunc_expr, _2, r, NULL, NULL>
+            gimple_assign <ssa_name, Z, _2, NULL, NULL>
+            gimple_assign <var_decl, Z.0_3, Z, NULL, NULL>
+            gimple_assign <plus_expr, _4, Z.0_3, 1, NULL>
+            gimple_assign <ssa_name, Z, _4, NULL, NULL>
+            >
+
+         gimple dumps:
+            main ()
+            {
+            int a;
+            int b;
+            int c;
+            int p;
+            int q;
+            double r;
+
+            p = 6;
+            a = 10;
+            b = 20;
+            _1 = a * b;
+            c = _1 + 25;
+            p = 6;
+            q = Z;
+            r = 3.45e+1;
+            _2 = (int) r;
+            Z = _2;
+            Z.0_3 = Z;
+            _4 = Z.0_3 + 1;
+            Z = _4;
+            }
+
+
+
+
+       
+
