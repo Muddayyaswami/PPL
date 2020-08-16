@@ -1,4 +1,5 @@
   
+
 Good!  You are  half-way there.  Now you  know about  how C  is translated  into
 GIMPLE.  Let's see how good you are at understanding the C to GIMPLE conversion.
 
@@ -26,7 +27,7 @@ A-6 GIMPLE CFG DUMP (file A-6-cfg-dump)
           j = 2;
           goto <bb 7>;
         
-        <bb 4>:
+  '-      <bb 4>:
           D.2168 = i % j;
           if (D.2168 == 0)
             goto <bb 5>;
