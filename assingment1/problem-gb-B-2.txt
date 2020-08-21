@@ -30,5 +30,9 @@ Questions
 ---------
 
         1   What will happen if "a = a + N" is replaced by "a = a + 1"?
+        Ans: if " a=a+N" is replaced by "a=a+1" then the compiler will be able to
+             evaluate the final value of a and turn the function into the equivalent
+             of "return 14" instead of return value of type "a+4N".
+
 
 
